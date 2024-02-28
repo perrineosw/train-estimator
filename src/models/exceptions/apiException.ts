@@ -1,5 +1,5 @@
 export class ApiException extends Error {
-  constructor() {
+  constructor(error: string) {
     super("Api error");
   }
 }

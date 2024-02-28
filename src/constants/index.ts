@@ -1,0 +1,23 @@
+export const PRICES = {
+  AGE_BETWEEN_1_AND_4_YEARS_OLD: 9,
+  TRAIN_STROKE_DISCOUNT_CARD: 1,
+};
+
+export const AGE_DISCOUNTS = {
+  UNDER_17: -0.4,
+  OVER_70: -0.2,
+  OTHER: 0.2,
+};
+
+export const TRIP_DATE_DISCOUNTS = {
+  MORE_THAN_30_DAYS: -0.2,
+  BETWEEN_5_AND_30_DAYS: 0.02,
+  IN_LESS_THAN_6_HOURS: -0.2,
+};
+
+export const DISCOUNT_CARDS = {
+  HALF_COUPLE: -0.1,
+  COUPLE: -0.2,
+  SENIOR: -0.2,
+  FAMILY: -0.3,
+};

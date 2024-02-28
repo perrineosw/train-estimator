@@ -24,3 +24,5 @@ yarn-error.log*
 
 # archives
 build.zip
+
+.idea

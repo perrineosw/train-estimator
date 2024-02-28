@@ -7,7 +7,7 @@ import { DiscountCard } from "./enums/discountCard";
 
 import { addHours } from "./utils";
 
-const STARTING_PRICE = 40;
+const STARTING_PRICE = 50;
 
 class TrainTicketEstimatorOverload extends TrainTicketEstimator {
   protected async getPriceFromApi(
@@ -160,7 +160,7 @@ describe("train estimator", function () {
       expect(await trainTicketEstimator.estimate(tripRequest)).toBe(9);
     });
 
-    it("should return 48 for a passenger more 4 years old and under 17 years", async function () {
+    it("should return 20 for a passenger more 4 years old and under 17 years", async function () {
       const passenger = new Passenger(6, []);
       const tripDetails: TripDetails = new TripDetails(
         departureCity,
@@ -171,10 +171,10 @@ describe("train estimator", function () {
         passenger,
       ]);
 
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(48);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(20);
     });
 
-    it("should return 16 due to Senior reduction", async function () {
+    it("should return 20 due to Senior reduction", async function () {
       const passenger = new Passenger(70, [DiscountCard.Senior]);
       const tripDetails: TripDetails = new TripDetails(
         departureCity,
@@ -186,7 +186,7 @@ describe("train estimator", function () {
         passenger,
       ]);
 
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(16);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(20);
     });
 
     it("should return 1 due to TrainStroke reduction", async function () {
@@ -205,7 +205,7 @@ describe("train estimator", function () {
       expect(await trainTicketEstimator.estimate(tripRequest)).toBe(1);
     });
 
-    it("should return 24 due to Couple reduction", async function () {
+    it("should return 30 due to Couple reduction and age 70", async function () {
       const passenger = new Passenger(70, [DiscountCard.Couple]);
       const tripDetails: TripDetails = new TripDetails(
         departureCity,
@@ -217,10 +217,10 @@ describe("train estimator", function () {
         passenger,
       ]);
 
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(24);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(30);
     });
 
-    it("should return 24 due to HalfCouple reduction", async function () {
+    it("should return 25 due to HalfCouple reduction", async function () {
       const passenger = new Passenger(70, [DiscountCard.HalfCouple]);
       const tripDetails: TripDetails = new TripDetails(
         departureCity,
@@ -231,10 +231,10 @@ describe("train estimator", function () {
       const tripRequest: TripRequest = new TripRequest(tripDetails, [
         passenger,
       ]);
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(20);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(25);
     });
 
-    it("should return 24 due to Family reduction", async function () {
+    it("should return 30 due to Family reduction", async function () {
       const passenger = new Passenger(70, [DiscountCard.Family]);
       const tripDetails: TripDetails = new TripDetails(
         departureCity,
@@ -245,7 +245,7 @@ describe("train estimator", function () {
       const tripRequest: TripRequest = new TripRequest(tripDetails, [
         passenger,
       ]);
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(24);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(30);
     });
   });
 
@@ -271,7 +271,7 @@ describe("train estimator", function () {
         passenger,
       ]);
 
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(48);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(20);
     });
 
     it("should apply discount : 65 years, travel in 20 days, Senior discount", async function () {
@@ -289,7 +289,7 @@ describe("train estimator", function () {
         passenger,
       ]);
 
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(48);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(60);
     });
 
     it("should apply increase : 22 years, travel in 4 days, HalfCouple discount", async function () {
@@ -307,7 +307,7 @@ describe("train estimator", function () {
         passenger,
       ]);
 
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(84);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(105);
     });
 
     it("should apply discount : over 70 years and less 4 years, travel in 30 days", async function () {
@@ -328,7 +328,7 @@ describe("train estimator", function () {
       ]);
 
 
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(33);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(39);
     });
 
     it("should apply discount : only if last name is given and last name is the same, Family discount", async function () {
@@ -350,7 +350,7 @@ describe("train estimator", function () {
         jaq,
       ]);
 
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(96);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(120);
     });
 
     it("should apply discount : travel in 6 hours, 20% increase (passenger age > 18)", async function () {
@@ -365,7 +365,7 @@ describe("train estimator", function () {
 
       const tripRequest: TripRequest = new TripRequest(tripDetails, [tom]);
 
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(40);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(50);
     });
   });
 
@@ -381,7 +381,7 @@ describe("train estimator", function () {
     it("should handle multiple passengers with different discount cards correctly", async function () {
       const tripDetails = new TripDetails(departureCity, cityOfArrival, new Date());
       const tripRequest = new TripRequest(tripDetails, [bob, eve]);
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(80);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(100);
     });
 
     it("should apply no discounts when passengers do not qualify for any", async function () {
@@ -395,7 +395,7 @@ describe("train estimator", function () {
       const passengers = Array(6).fill(new Passenger(25, []));
       const tripDetails = new TripDetails(departureCity, cityOfArrival, new Date());
       const tripRequest = new TripRequest(tripDetails, passengers);
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(240);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(300);
     });
 
     it("should return the correct price for a last-minute booking", async function () {
@@ -404,7 +404,7 @@ describe("train estimator", function () {
       const tripDetails = new TripDetails(departureCity, cityOfArrival, tripDate);
       const tripRequest = new TripRequest(tripDetails, [passenger]);
 
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(40);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(STARTING_PRICE);
     });
 
     it("should correctly apply discounts for early bookings", async function () {
@@ -412,7 +412,7 @@ describe("train estimator", function () {
       const passenger = new Passenger(40, []);
       const tripDetails = new TripDetails(departureCity, cityOfArrival, tripDate);
       const tripRequest = new TripRequest(tripDetails, [passenger]);
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(40);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(STARTING_PRICE);
     });
   });
 
