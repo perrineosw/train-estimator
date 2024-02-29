@@ -4,8 +4,10 @@ import { TripDetails } from "./models/tripDetails";
 import { InvalidTripInputException } from "./models/exceptions/invalidTripInputException";
 import { TripRequest } from "./models/tripRequest";
 import { DiscountCard } from "./enums/discountCard";
+import * as constants from "./constants";
 
 import { addHours } from "./utils";
+import {AGE_DISCOUNTS} from "./constants";
 
 const STARTING_PRICE = 50;
 
@@ -120,7 +122,7 @@ describe("train estimator", function () {
 
 
   describe("static prices", function () {
-    it("should return 0 when no passengers", async function () {
+    it("when no passengers", async function () {
       const tripDetails = new TripDetails(
         departureCity,
         cityOfArrival,
@@ -132,7 +134,7 @@ describe("train estimator", function () {
       expect(result).toBe(0);
     });
 
-    it("should return 0 for a passenger under 1 year old", async function () {
+    it("for a passenger under 1 year old", async function () {
       const passenger = new Passenger(0, []);
       const tripDetails: TripDetails = new TripDetails(
         departureCity,
@@ -146,7 +148,7 @@ describe("train estimator", function () {
       expect(await trainTicketEstimator.estimate(tripRequest)).toBe(0);
     });
 
-    it("should return 9 for a passenger under 4 years old", async function () {
+    it("for a passenger under 4 years old : 1 passenger age 2", async function () {
       const passenger = new Passenger(2, []);
       const tripDetails: TripDetails = new TripDetails(
         departureCity,
@@ -160,7 +162,7 @@ describe("train estimator", function () {
       expect(await trainTicketEstimator.estimate(tripRequest)).toBe(9);
     });
 
-    it("should return 20 for a passenger more 4 years old and under 17 years", async function () {
+    it("for a passenger more 4 years old and under 17 years : 1 passenger age 6", async function () {
       const passenger = new Passenger(6, []);
       const tripDetails: TripDetails = new TripDetails(
         departureCity,
@@ -174,7 +176,7 @@ describe("train estimator", function () {
       expect(await trainTicketEstimator.estimate(tripRequest)).toBe(20);
     });
 
-    it("should return 20 due to Senior reduction", async function () {
+    it("to Senior reduction : 1 passenger age 70", async function () {
       const passenger = new Passenger(70, [DiscountCard.Senior]);
       const tripDetails: TripDetails = new TripDetails(
         departureCity,
@@ -189,8 +191,8 @@ describe("train estimator", function () {
       expect(await trainTicketEstimator.estimate(tripRequest)).toBe(20);
     });
 
-    it("should return 1 due to TrainStroke reduction", async function () {
-      const passenger = new Passenger(70, [DiscountCard.TrainStroke]);
+    it("to TrainStroke reduction : 1 passenger age 35", async function () {
+      const passenger = new Passenger(35, [DiscountCard.TrainStroke]);
       const tripDetails: TripDetails = new TripDetails(
         departureCity,
         cityOfArrival,
@@ -205,8 +207,8 @@ describe("train estimator", function () {
       expect(await trainTicketEstimator.estimate(tripRequest)).toBe(1);
     });
 
-    it("should return 30 due to Couple reduction and age 70", async function () {
-      const passenger = new Passenger(70, [DiscountCard.Couple]);
+    it("to Couple reduction : 1 passenger age 50", async function () {
+      const passenger = new Passenger(50, [DiscountCard.Couple]);
       const tripDetails: TripDetails = new TripDetails(
         departureCity,
         cityOfArrival,
@@ -217,10 +219,10 @@ describe("train estimator", function () {
         passenger,
       ]);
 
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(30);
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(50);
     });
 
-    it("should return 25 due to HalfCouple reduction", async function () {
+    it("to HalfCouple reduction : 1 passenger age 70", async function () {
       const passenger = new Passenger(70, [DiscountCard.HalfCouple]);
       const tripDetails: TripDetails = new TripDetails(
         departureCity,
@@ -231,11 +233,12 @@ describe("train estimator", function () {
       const tripRequest: TripRequest = new TripRequest(tripDetails, [
         passenger,
       ]);
+
       expect(await trainTicketEstimator.estimate(tripRequest)).toBe(25);
     });
 
-    it("should return 30 due to Family reduction", async function () {
-      const passenger = new Passenger(70, [DiscountCard.Family]);
+    it("to Family reduction : 1 passenger age 35", async function () {
+      const passenger = new Passenger(35, [DiscountCard.Family]);
       const tripDetails: TripDetails = new TripDetails(
         departureCity,
         cityOfArrival,
@@ -245,7 +248,8 @@ describe("train estimator", function () {
       const tripRequest: TripRequest = new TripRequest(tripDetails, [
         passenger,
       ]);
-      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(30);
+
+      expect(await trainTicketEstimator.estimate(tripRequest)).toBe(STARTING_PRICE);
     });
   });
 
@@ -256,7 +260,7 @@ describe("train estimator", function () {
       currentDate = new Date();
     });
 
-    it("should apply discount : 17 years, travel in 45 days", async function () {
+    it("should apply discount : 1 passenger 17 years, travel in 45 days", async function () {
       const tripDate = new Date();
       tripDate.setDate(currentDate.getDate() + 45);
 
@@ -274,7 +278,7 @@ describe("train estimator", function () {
       expect(await trainTicketEstimator.estimate(tripRequest)).toBe(20);
     });
 
-    it("should apply discount : 65 years, travel in 20 days, Senior discount", async function () {
+    it("should apply discount : 1 passenger 65 years, travel in 20 days, Senior discount", async function () {
       const tripDate = new Date();
       tripDate.setDate(currentDate.getDate() + 20);
 
@@ -292,7 +296,7 @@ describe("train estimator", function () {
       expect(await trainTicketEstimator.estimate(tripRequest)).toBe(60);
     });
 
-    it("should apply increase : 22 years, travel in 4 days, HalfCouple discount", async function () {
+    it("should apply increase : 1 passenger 22 years, travel in 4 days, HalfCouple discount", async function () {
       const tripDate = new Date();
       tripDate.setDate(currentDate.getDate() + 4);
 
@@ -310,7 +314,7 @@ describe("train estimator", function () {
       expect(await trainTicketEstimator.estimate(tripRequest)).toBe(105);
     });
 
-    it("should apply discount : over 70 years and less 4 years, travel in 30 days", async function () {
+    it("should apply discount : 1 passenger 70 years and 1 passenger 3 years, travel in 30 days", async function () {
       const tripDate = new Date();
       tripDate.setDate(currentDate.getDate() + 30);
 
@@ -326,8 +330,6 @@ describe("train estimator", function () {
         passenger,
         passenger2,
       ]);
-
-
       expect(await trainTicketEstimator.estimate(tripRequest)).toBe(39);
     });
 
